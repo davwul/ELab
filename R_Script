@@ -1,1 +1,167 @@
+library(readxl)
+library(tidyverse)
+library(xlsx)
+
+# Samples exported from Elab
+elab <- read_excel("elab_inventory_export.xlsx")
+
+
+# Only Boba Fett
+boba <- elab[grepl("Boba Fett", elab$StorageLocation),]
+
+
+# List of samples to take out
+
+# The 6 time points
+TimePoints <-  c("D1D0", "D1D14", "D2D0", "D2D14", "D3D0", "D3D14")
+# Repeat the 6 time points 36 times since samples = 36 * 6 = 216
+rep_TimePoints <-  rep(TimePoints, times = 36)
+
+# Load excel file with samples
+list_ac <- read_excel("list.xlsx", sheet = 1, col_names = FALSE)
+# Create list of samples
+a <- list_ac$...1
+# Repeat the 36 samples 6 times for each time point
+rep_Samples <- rep(a, each = 6)
+
+# create data frame
+df <- as.data.frame(cbind(rep_Samples, rep_TimePoints))
+colnames(df) <- c("Samples", "TimePoint")
+df$Sample <- paste(df$Samples, df$TimePoint)
+
+
+
+
+# Filter on sample list
+filt_boba <- filter(boba, SampleName %in% df$Sample)
+
+# Select only highest position to take the sample in the back
+highest_position <- filt_boba %>%
+  group_by(SampleName) %>%
+  filter(Position == max(Position))
+
+
+
+# Get the unique samples 
+unique_samples <- unique(highest_position$SampleName)
+# Subset to get the samples not present in sample list
+not_matching_samples <- subset(df, !(Sample %in% unique_samples))
+
+# Export, need to convert tibble to df for write.xlsx to work
+highest_position <- as.data.frame(highest_position)
+write.xlsx(highest_position, "outs.xlsx")
+
+#### A C D3D30
+
+# The 6 time points
+TimePoints <-  c("D3D30")
+# Repeat the 6 time points 36 times since samples = 36 * 6 = 216
+rep_TimePoints <-  rep(TimePoints, times = 1)
+
+# Load excel file with samples
+list_ac <- read_excel("list.xlsx", sheet = 1, col_names = FALSE)
+# Create list of samples
+a <- list_ac$...1
+# Repeat the 36 samples 6 times for each time point
+rep_Samples <- rep(a, each = 1)
+
+# create data frame
+df <- as.data.frame(cbind(rep_Samples, rep_TimePoints))
+colnames(df) <- c("Samples", "TimePoint")
+df$Sample <- paste(df$Samples, df$TimePoint)
+
+
+# Filter on sample list
+filt_boba <- filter(boba, SampleName %in% df$Sample)
+
+# Select only highest position to take the sample in the back
+highest_position <- filt_boba %>%
+  group_by(SampleName) %>%
+  filter(Position == max(Position))
+
+# Get the unique samples 
+unique_samples <- unique(highest_position$SampleName)
+# Subset to get the samples not present in sample list
+not_matching_samples <- subset(df, !(Sample %in% unique_samples))
+
+# Export, need to convert tibble to df for write.xlsx to work
+highest_position <- as.data.frame(highest_position)
+write.xlsx(highest_position, "out_d3d30.xlsx")
+
+
+
+
+
+#### B D E
+
+
+# List of samples to take out
+
+
+# The 6 time points
+TimePoints_BD <-  c("D1D0", "D1D14", "D2D0", "D2D14", "D2D30")
+TimePoints_E <-  c("D1D0", "D1D14", "D1D30", "D1D44", "D1D60")
+
+# Repeat 36 for bd and 12 for e
+rep_TimePoints_BD <-  rep(TimePoints_BD, times = 36)
+rep_TimePoints_E <-  rep(TimePoints_E, times = 12)
+
+
+
+
+# Load excel file with samples
+list_bd <- read_excel("list.xlsx", sheet = 2, col_names = FALSE)
+list_e <- read_excel("list.xlsx", sheet = 3, col_names = FALSE)
+
+# Create list of samples
+b <- list_bd$...1
+c <- list_e$...1
+
+# Repeat the 36 and 12 samples 5 times for each time point
+rep_Samples_bd <- rep(b, each = 5)
+rep_Samples_e <- rep(c, each = 5)
+
+# create data frame
+df_bd <- as.data.frame(cbind(rep_Samples_bd, rep_TimePoints_BD))
+colnames(df_bd) <- c("Samples", "TimePoint")
+df_bd$Sample <- paste(df_bd$Samples, df_bd$TimePoint)
+
+df_e <- as.data.frame(cbind(rep_Samples_e, rep_TimePoints_E))
+colnames(df_e) <- c("Samples", "TimePoint")
+df_e$Sample <- paste(df_e$Samples, df_e$TimePoint)
+
+
+
+# Filter on sample list
+filt_boba_bd <- filter(boba, SampleName %in% df_bd$Sample)
+filt_boba_e <- filter(boba, SampleName %in% df_e$Sample)
+
+# Select only highest position to take the sample in the back
+highest_position_bd <- filt_boba_bd %>%
+  group_by(SampleName) %>%
+  filter(Position == max(Position))
+
+highest_position_e <- filt_boba_e %>%
+  group_by(SampleName) %>%
+  filter(Position == max(Position))
+
+# Get the unique samples 
+unique_samples_bd <- unique(highest_position_bd$SampleName)
+# Subset to get the samples not present in sample list
+not_matching_samples_bd <- subset(df_bd, !(Sample %in% unique_samples_bd))
+
+# Export, need to convert tibble to df for write.xlsx to work
+highest_position_bd <- as.data.frame(highest_position_bd)
+write.xlsx(highest_position_bd, "out_bd.xlsx")
+
+
+
+# Get the unique samples 
+unique_samples_e <- unique(highest_position_e$SampleName)
+# Subset to get the samples not present in sample list
+not_matching_samples_e <- subset(df_e, !(Sample %in% unique_samples_e))
+
+# Export, need to convert tibble to df for write.xlsx to work
+highest_position_e <- as.data.frame(highest_position_e)
+write.xlsx(highest_position_e, "oute.xlsx")
 
